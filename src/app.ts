@@ -5,7 +5,8 @@ import {
     optionRoutes,
     patientRoutes,
     personRoutes,
-    teacherRoutes
+    teacherRoutes,
+    userRoutes
 } from "./routes/index.js";
 import {
     errorHandler,
@@ -32,6 +33,7 @@ app.use("/api/v1/patients", patientRoutes);
 app.use("/api/v1/persons", personRoutes);
 app.use("/api/v1/exercises", exercisesRoutes);
 app.use("/api/v1/options", optionRoutes);
+app.use("/api/v1/users", userRoutes)
 
 app.use(notFoundHandler);
 app.use(errorHandler);
