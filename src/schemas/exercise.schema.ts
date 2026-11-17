@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { paginationQuerySchema } from "./pagination.schema.js";
 
 export const createExerciseSchema = z.object({
     name: z.string().trim().min(1, "El nombre del ejercicio es obligatorio"),
@@ -15,5 +16,10 @@ export const updateExerciseSchema = createExerciseSchema
         message: "Debes enviar al menos un campo para actualizar",
     });
 
+export const listExercisesQuerySchema = paginationQuerySchema.extend({
+    search: z.string().trim().optional(),
+});
+
 export type CreateExerciseDto = z.infer<typeof createExerciseSchema>;
 export type UpdateExerciseDto = z.infer<typeof updateExerciseSchema>;
+export type ListExercisesQuery = z.infer<typeof listExercisesQuerySchema>;

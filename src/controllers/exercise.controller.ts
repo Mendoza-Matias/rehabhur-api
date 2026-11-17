@@ -1,14 +1,20 @@
 import type { Request, Response } from "express";
 import { ExerciseService } from "../services/excercise.service.js";
 import { ExerciseResponseDto, toExerciseResponseDto } from "../dtos/exercise-response.dto.js";
-import type { CreateExerciseDto, UpdateExerciseDto } from "../schemas/exercise.schema.js";
+import { listExercisesQuerySchema, type CreateExerciseDto, type UpdateExerciseDto } from "../schemas/exercise.schema.js";
+import { parseListQuery } from "../middlewares/validate.js";
+import type { PaginatedResponse } from "../utils/pagination.js";
 
 export class ExerciseController {
   constructor(private readonly service: ExerciseService) { }
 
-  findAll = (_req: Request, res: Response<ExerciseResponseDto[]>): void => {
-    const exercises = this.service.findAll().map(toExerciseResponseDto);
-    res.status(200).json(exercises);
+  findAll = (req: Request, res: Response<PaginatedResponse<ExerciseResponseDto>>): void => {
+    const query = parseListQuery(listExercisesQuerySchema, req.query);
+    const result = this.service.findAll(query);
+    res.status(200).json({
+      data: result.data.map(toExerciseResponseDto),
+      meta: result.meta,
+    });
   };
 
   findById = (req: Request<{ id: string }>, res: Response<ExerciseResponseDto>): void => {

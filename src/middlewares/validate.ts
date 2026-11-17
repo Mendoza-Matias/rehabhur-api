@@ -2,6 +2,27 @@ import type { RequestHandler } from "express";
 import type { ZodType } from "zod";
 import { AppError } from "../utils/AppError.js";
 
+const validationDetails = (error: { issues: Array<{ path: PropertyKey[]; message: string }> }) =>
+  error.issues.map((issue) => ({
+    attribute: issue.path.join("."),
+    message: issue.message,
+  }));
+
+export const parseListQuery = <T>(schema: ZodType<T>, query: unknown): T => {
+  const result = schema.safeParse(query);
+
+  if (!result.success) {
+    throw new AppError(
+      400,
+      "INVALID_PAGINATION",
+      "Los parámetros de consulta son inválidos",
+      validationDetails(result.error),
+    );
+  }
+
+  return result.data;
+};
+
 export const schemaValidator = (schema: ZodType) => {
   const validate: RequestHandler = (req, _res, next): void => {
     const result = schema.safeParse(req.body);
