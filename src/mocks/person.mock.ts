@@ -1,14 +1,14 @@
-import type { Person, PersonRole } from "../models/person.model.js";
+import type { Person } from "../models/person.model.js";
 import { users } from "./user.mock.js";
 
 const usersAsPersons: Person[] = users.map((user, index) => ({
     id: index + 1,
-    firstName: user.name,
+    firstName: user.firstName,
     lastName: user.lastName,
-    dni: user.dni.replaceAll(".", ""),
+    dni: user.dni,
     email: user.email,
     nationality: "Argentina",
-    role: user.profile as PersonRole,
+    role: user.role,
 }));
 
 const admins: Person[] = [

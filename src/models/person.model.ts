@@ -1,6 +1,8 @@
-export const personRoles = ["admin", "docente", "estudiante", "paciente"] as const;
+import { roles, type Role } from "./role.model.js";
 
-export type PersonRole = (typeof personRoles)[number];
+export const personRoles = roles;
+
+export type PersonRole = Role;
 
 export interface Person {
     id: number;
