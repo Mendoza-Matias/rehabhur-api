@@ -16,11 +16,44 @@ const nextIdentity = (prefix: string) => {
     };
 };
 
-const signin = (email: string, password: string) =>
-    request(app).post("/api/v1/auth/signin").send({ email, password });
+type ClientType = "web" | "mobile";
 
-const logoutAndRefresh = async (refreshToken: string) =>
-    request(app).post("/api/v1/auth/refresh-token").send({ refreshToken });
+const withClientType = (clientType: ClientType): Record<string, string> =>
+    clientType === "mobile" ? { "X-Client-Type": "mobile" } : {};
+
+interface CookieResponse {
+    headers: Record<string, string | string[] | undefined>;
+}
+
+const getSetCookies = (response: CookieResponse): string[] => {
+    const header = response.headers["set-cookie"];
+
+    if (!header) {
+        return [];
+    }
+
+    return Array.isArray(header) ? header : [header];
+};
+
+const getRefreshCookie = (response: CookieResponse): string | undefined =>
+    getSetCookies(response).find((cookie) => cookie.startsWith("refreshToken="));
+
+const getRefreshCookieValue = (response: CookieResponse): string | undefined => {
+    const cookie = getRefreshCookie(response);
+    return cookie?.split(";")[0]?.split("=")[1];
+};
+
+const signin = (email: string, password: string, clientType: ClientType = "mobile") =>
+    request(app)
+        .post("/api/v1/auth/signin")
+        .set(withClientType(clientType))
+        .send({ email, password });
+
+const refreshSession = (refreshToken: string, clientType: ClientType = "mobile") =>
+    request(app)
+        .post("/api/v1/auth/refresh-token")
+        .set(withClientType(clientType))
+        .send({ refreshToken });
 
 describe("Autenticación", () => {
     it("inicia sesión con el administrador de prueba sin exponer la contraseña", async () => {
@@ -109,12 +142,12 @@ describe("Autenticación", () => {
     it("renueva los tokens y no permite reutilizar el refresh token anterior", async () => {
         const session = await signin(ADMIN.email, ADMIN.password);
 
-        const refreshed = await logoutAndRefresh(session.body.refreshToken);
+        const refreshed = await refreshSession(session.body.refreshToken);
         expect(refreshed.status).toBe(200);
         expect(refreshed.body.accessToken).toEqual(expect.any(String));
         expect(refreshed.body.refreshToken).not.toBe(session.body.refreshToken);
 
-        const reused = await logoutAndRefresh(session.body.refreshToken);
+        const reused = await refreshSession(session.body.refreshToken);
         expect(reused.status).toBe(401);
         expect(reused.body.error.code).toBe("INVALID_REFRESH_TOKEN");
 

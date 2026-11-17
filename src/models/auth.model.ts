@@ -24,7 +24,22 @@ export interface AuthResult {
     refreshToken: string;
 }
 
+/**
+ * Respuesta para clientes web: el refresh token viaja en una cookie httpOnly
+ * y no se expone en el body. Los clientes móviles reciben además el token.
+ */
+export interface AuthResponse {
+    user: PublicUser;
+    accessToken: string;
+    refreshToken?: string;
+}
+
 export interface TokenPair {
     accessToken: string;
     refreshToken: string;
+}
+
+export interface RefreshResponse {
+    accessToken: string;
+    refreshToken?: string;
 }
