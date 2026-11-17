@@ -1,14 +1,47 @@
-import { User } from "../models/user.model.js";
+import bcrypt from "bcryptjs";
+
+import type { User } from "../models/user.model.js";
+
+// Contraseña de todas las cuentas de prueba (ver README).
+export const seedPassword = "Password123";
+
+const seedPasswordHash = bcrypt.hashSync(seedPassword, 10);
 
 export const users: User[] = [
-    // Admin
     {
         id: 1,
-        name: "Carlos",
-        last_name: "Méndez",
-        email: "carlos.mendez@email.com",
-        dni: "32.456.789",
-        password: "Password123",
+        firstName: "Usuario",
+        lastName: "Administrador",
+        dni: "30111222",
+        email: "admin@rehabhur.com",
+        passwordHash: seedPasswordHash,
         role: "admin",
-    }
+    },
+    {
+        id: 2,
+        firstName: "Nadia",
+        lastName: "Docente",
+        dni: "28333444",
+        email: "docente@rehabhur.com",
+        passwordHash: seedPasswordHash,
+        role: "docente",
+    },
+    {
+        id: 3,
+        firstName: "Elena",
+        lastName: "Estudiante",
+        dni: "40111222",
+        email: "estudiante@rehabhur.com",
+        passwordHash: seedPasswordHash,
+        role: "estudiante",
+    },
+    {
+        id: 4,
+        firstName: "Pablo",
+        lastName: "Paciente",
+        dni: "45111222",
+        email: "paciente@rehabhur.com",
+        passwordHash: seedPasswordHash,
+        role: "paciente",
+    },
 ];

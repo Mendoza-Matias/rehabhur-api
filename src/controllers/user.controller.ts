@@ -1,75 +1,24 @@
-import bcrypt from "bcryptjs";
+import type { Request, Response } from "express";
 
-import jwt from "jsonwebtoken";
-
-//importo los mocks de los servicios
-import { users } from "../mocks/user.mock.js";
-
-import { Request, Response } from "express";
-import { JWT_SECRET } from "../config/jwt.js";
+import type { UserResponseDto } from "../dtos/user-response.dto.js";
+import type { CreateUserDto } from "../schemas/auth.schema.js";
+import { UserService } from "../services/user.service.js";
 
 export class UserController {
+    constructor(private readonly service: UserService) { }
 
-    findAll(_req: Request, res: Response<unknown>) {
-        return res.status(200).json(users);
-    }
+    findAll = (
+        _req: Request,
+        res: Response<UserResponseDto[]>
+    ): void => {
+        res.status(200).json(this.service.findAll());
+    };
 
-    signin = async (req: Request, res: Response<unknown>) => {
-
-        const { email, password } = req.body;
-
-        console.log(email)
-        console.log(password)
-
-        try {
-
-            const user = users.find((user) => user.email === email);
-
-            if (user) {
-                const isPasswordMatched = await bcrypt.compare(password, user.password);
-
-                if (isPasswordMatched) {
-                    //extraer el role del usuario
-                    const token = jwt.sign({ email: user.email, role: "admin" }, JWT_SECRET, { expiresIn: "1h" });
-
-                    res.status(200).json({ token });
-                }
-            }
-        } catch (error) {
-            res.status(400).json({ message: "Error al iniciar sesión", body: error });
-        }
-    }
-
-    signup = async (req: Request, res: Response<unknown>) => {
-
-        const { name, last_name, dni, email, password } = req.body
-
-        const hash_password = await bcrypt.hash(password, 10);
-
-        try {
-
-            const existentUser = users.find((user) => user.email === email);
-
-            if (existentUser) {
-                res.status(400).json();
-            }
-
-            const user = {
-                id: users.length + 1,
-                name,
-                last_name,
-                dni,
-                email,
-                password: hash_password,
-                role: "admin"
-            }
-
-            users.push(user);
-
-            res.status(201).json(user);
-
-        } catch (error) {
-            res.status(400).json();
-        }
-    }
+    create = async (
+        req: Request<{}, UserResponseDto, CreateUserDto>,
+        res: Response<UserResponseDto>
+    ): Promise<void> => {
+        const created = await this.service.create(req.body);
+        res.status(201).json(created);
+    };
 }

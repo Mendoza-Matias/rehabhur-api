@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import {
+    authRoutes,
     exercisesRoutes,
     optionRoutes,
     patientRoutes,
@@ -33,7 +34,8 @@ app.use("/api/v1/patients", patientRoutes);
 app.use("/api/v1/persons", personRoutes);
 app.use("/api/v1/exercises", exercisesRoutes);
 app.use("/api/v1/options", optionRoutes);
-app.use("/api/v1/users", userRoutes)
+app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/users", userRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

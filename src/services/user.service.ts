@@ -1,7 +1,68 @@
-export class UserService {
+import bcrypt from "bcryptjs";
 
-    signin():void{
-        
+import { toUserResponseDto, type UserResponseDto } from "../dtos/user-response.dto.js";
+import { UserRepository } from "../repository/users.repository.js";
+import type { CreateUserDto } from "../schemas/auth.schema.js";
+import type { User } from "../models/user.model.js";
+import { AppError } from "../utils/AppError.js";
+
+export class UserService {
+    constructor(private readonly repository: UserRepository) { }
+
+    findAll(): UserResponseDto[] {
+        return this.repository.findAll().map(toUserResponseDto);
     }
 
+    findById(id: number): UserResponseDto {
+        const user = this.repository.findById(id);
+        if (!user) {
+            throw new AppError(404, "USER_NOT_FOUND", "No se encontró el usuario");
+        }
+        return toUserResponseDto(user);
+    }
+
+    async create(data: CreateUserDto): Promise<UserResponseDto> {
+        if (this.repository.findByEmail(data.email)) {
+            throw new AppError(
+                409,
+                "DUPLICATE_EMAIL",
+                "Ya existe un usuario registrado con este correo electrónico"
+            );
+        }
+
+        if (this.repository.findByDni(data.dni)) {
+            throw new AppError(
+                409,
+                "DUPLICATE_DNI",
+                "Ya existe un usuario registrado con este DNI"
+            );
+        }
+
+        const passwordHash = await bcrypt.hash(data.password, 10);
+        const user = this.repository.create({
+            firstName: data.firstName,
+            lastName: data.lastName,
+            dni: data.dni,
+            email: data.email,
+            passwordHash,
+            role: data.role,
+        });
+
+        return toUserResponseDto(user);
+    }
+
+    async validateCredentials(email: string, password: string): Promise<User> {
+        const user = this.repository.findByEmail(email);
+
+        if (!user) {
+            throw new AppError(401, "INVALID_CREDENTIALS", "Correo o contraseña incorrectos");
+        }
+
+        const passwordMatches = await bcrypt.compare(password, user.passwordHash);
+        if (!passwordMatches) {
+            throw new AppError(401, "INVALID_CREDENTIALS", "Correo o contraseña incorrectos");
+        }
+
+        return user;
+    }
 }
