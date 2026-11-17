@@ -1,4 +1,6 @@
+import "dotenv/config";
 import express from "express";
+import cookieParser from "cookie-parser";
 import cors from "cors";
 import {
     authRoutes,
@@ -16,7 +18,23 @@ import {
 
 const app = express();
 
-app.use(cors());
+const defaultOrigins = [
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://localhost:4200",
+];
+
+const configuredOrigins = (process.env.CORS_ORIGIN ?? "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+app.use(cors({
+    // Con cookies credenciales no se permite comodín: hay que listar los orígenes.
+    origin: configuredOrigins.length > 0 ? configuredOrigins : defaultOrigins,
+    credentials: true,
+}));
+app.use(cookieParser());
 app.use(express.json());
 
 const healthCheck = (
