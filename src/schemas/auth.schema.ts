@@ -28,9 +28,12 @@ export const signinSchema = z.object({
     password: z.string().min(1, "La contraseña es obligatoria"),
 });
 
-export const refreshTokenSchema = z.object({
-    refreshToken: z.string().trim().min(1, "El refresh token es obligatorio"),
-});
+// El refresh token puede venir en la cookie httpOnly o en el body (clientes nativos).
+export const refreshTokenSchema = z
+    .object({
+        refreshToken: z.string().trim().min(1, "El refresh token no puede estar vacío").optional(),
+    })
+    .optional();
 
 // Solo un administrador puede crear cuentas con estos roles.
 export const createUserSchema = z.object({

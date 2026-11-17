@@ -45,6 +45,7 @@ export const users: User[] = [
         role: "paciente",
     },
 ];
+<<<<<<< HEAD
 
 // Usuarios adicionales para probar listados y paginación.
 const extraRoles = ["estudiante", "paciente", "docente", "admin"] as const;
@@ -60,3 +61,5 @@ for (let index = 1; index <= 20; index += 1) {
         role: extraRoles[(index - 1) % extraRoles.length]!,
     });
 }
+=======
+>>>>>>> develop
