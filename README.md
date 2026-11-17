@@ -143,6 +143,10 @@ El workflow `.github/workflows/build.yml` corre en pull requests y push a
 2. Construye la imagen Docker.
 3. Publica la imagen en GitHub Container Registry solo en push.
 
+Configurar el secreto `JWT_SECRET` en GitHub Actions con una clave Base64
+válida de 32 bytes. Los tests de ambos workflows lo requieren; los pull
+requests desde forks no reciben secretos del repositorio.
+
 Tags publicados:
 
 | Evento | Tags |

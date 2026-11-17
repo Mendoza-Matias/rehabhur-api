@@ -1,9 +1,6 @@
 import { z } from "zod";
 import { personRoles } from "../models/person.model.js";
-<<<<<<< HEAD
-=======
 import { paginationQuerySchema } from "./pagination.schema.js";
->>>>>>> develop
 
 export const createPersonSchema = z.object({
     firstName: z.string().trim().min(1, "El nombre es obligatorio"),
@@ -23,10 +20,6 @@ export const updatePersonSchema = createPersonSchema
         message: "Debes enviar al menos un campo para actualizar",
     });
 
-<<<<<<< HEAD
-export type CreatePersonDto = z.infer<typeof createPersonSchema>;
-export type UpdatePersonDto = z.infer<typeof updatePersonSchema>;
-=======
 export const listPersonsQuerySchema = paginationQuerySchema.extend({
     search: z.string().trim().optional(),
     role: z.enum(personRoles).optional(),
@@ -35,4 +28,3 @@ export const listPersonsQuerySchema = paginationQuerySchema.extend({
 export type CreatePersonDto = z.infer<typeof createPersonSchema>;
 export type UpdatePersonDto = z.infer<typeof updatePersonSchema>;
 export type ListPersonsQuery = z.infer<typeof listPersonsQuerySchema>;
->>>>>>> develop
