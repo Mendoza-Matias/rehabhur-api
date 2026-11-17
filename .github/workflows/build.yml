@@ -36,6 +36,8 @@ jobs:
 
       - name: Run tests
         run: npm test
+        env:
+          JWT_SECRET: cmVoYWJodXItY2ktdGVzdC1rZXktMzItYnl0ZXMhISE=
 
       - name: Build project
         run: npm run build
