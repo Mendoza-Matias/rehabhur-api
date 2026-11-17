@@ -127,16 +127,67 @@ deben volver a iniciar sesión.
 | estudiante | `estudiante@rehabhur.com` | `Password123` |
 | paciente | `paciente@rehabhur.com` | `Password123` |
 
-## Imagen de prueba
+## Docker
 
-Al integrar cambios en `develop`, el workflow ejecuta build y tests y, si ambos
-finalizan correctamente, publica la imagen en GitHub Container Registry:
+El `Dockerfile` compila TypeScript en una primera etapa y en la imagen final
+deja solo las dependencias de producción. Para construir y correr localmente:
 
 ```sh
-docker pull ghcr.io/rehabhur/rehabhur-api:develop
-docker run --rm -p 3000:3000 ghcr.io/rehabhur/rehabhur-api:develop
+docker build -t ghcr.io/rehabhur/rehabhur-api:local .
+docker run --rm -p 3000:3000 --env-file .env ghcr.io/rehabhur/rehabhur-api:local
 ```
 
-También se publica una etiqueta con el SHA corto del commit para identificar
-una versión concreta. El paquete debe tener habilitada la lectura para quienes
-vayan a descargar la imagen.
+También se puede usar Docker Compose. Copiar `.env.example` a `.env`, completar
+`JWT_SECRET` y ejecutar:
+
+```sh
+docker compose up --build
+```
+
+El servicio queda en `http://localhost:3000` y expone `/health` para el
+healthcheck.
+
+## CI/CD e imágenes
+
+El workflow `.github/workflows/build.yml` corre en pull requests y push a
+`main` y `develop`:
+
+1. Instala dependencias, ejecuta typecheck, tests y build.
+2. Construye la imagen Docker.
+3. Publica la imagen en GitHub Container Registry solo en push.
+
+Tags publicados:
+
+| Evento | Tags |
+| --- | --- |
+| Push a `develop` | `develop`, `sha-<commit>` |
+| Push a `main` (merge de develop) | `latest`, `main`, `sha-<commit>` |
+
+En pull requests la imagen se construye pero no se publica.
+
+### Deploy en el servidor
+
+Copiar `docker-compose.yml` y un `.env` con `JWT_SECRET` al servidor y ejecutar:
+
+```sh
+docker compose pull
+docker compose up -d
+docker compose ps
+docker compose logs -f api
+```
+
+Producción usa `latest` por defecto. Para staging:
+
+```sh
+IMAGE_TAG=develop docker compose up -d
+```
+
+Para volver a una versión anterior, usar el tag `sha-<commit>`:
+
+```sh
+IMAGE_TAG=sha-abc1234 docker compose pull
+IMAGE_TAG=sha-abc1234 docker compose up -d
+```
+
+El paquete de GHCR debe tener habilitada la lectura para quienes vayan a
+descargar la imagen.
