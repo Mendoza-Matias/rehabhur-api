@@ -40,57 +40,16 @@ Copiar `.env.example` a `.env` y completar:
 - `POST /api/v1/persons`, `PATCH /api/v1/persons/:id`, `DELETE /api/v1/persons/:id`
 - `GET /api/v1/exercises`, `GET /api/v1/exercises/:id`
 - `POST /api/v1/exercises`, `PATCH /api/v1/exercises/:id`, `DELETE /api/v1/exercises/:id`
-<<<<<<< HEAD
-- `GET /api/v1/options/body-regions`, `motion-types`, `materials`
-=======
 - `GET /api/v1/options/body-regions` (también `motion-types` y `materials`)
 - `POST /api/v1/auth/signup`, `POST /api/v1/auth/signin`
 - `POST /api/v1/auth/refresh-token`, `POST /api/v1/auth/logout`
 - `GET /api/v1/auth/profile`
 - `GET /api/v1/users`, `POST /api/v1/users` (solo administradores)
->>>>>>> develop
 
 Los datos se almacenan en memoria y se reinician con el proceso.
 
 ## Paginación
 
-<<<<<<< HEAD
-Los listados de docentes, pacientes, personas, ejercicios y usuarios aceptan
-`page` (desde 1) y `limit` (1 a 100). Por defecto: `?page=1&limit=10`.
-
-```json
-{
-  "data": [],
-  "meta": {
-    "page": 1,
-    "limit": 10,
-    "total": 100,
-    "totalPages": 10,
-    "hasNextPage": true,
-    "hasPreviousPage": false
-  }
-}
-```
-
-`/api/v1/options/*` devuelve las opciones completas y no se pagina.
-
-## Autenticación
-
-La API usa JWT. El access token dura 15 minutos y el refresh token 7 días, con
-rotación en cada renovación. Enviar `Authorization: Bearer <accessToken>`.
-
-- `POST /api/v1/auth/signup`: registro público; siempre crea un `paciente`.
-- `POST /api/v1/auth/signin`: recibe `email` y `password`.
-- `POST /api/v1/auth/refresh-token`: recibe `refreshToken`.
-- `POST /api/v1/auth/logout`: revoca el `refreshToken`.
-- `GET /api/v1/auth/profile`: datos del usuario y su `role`.
-- `GET /api/v1/users`, `POST /api/v1/users`: solo `admin`.
-
-Roles: `paciente` se registra solo; `estudiante`, `docente` y `admin` los crea
-un administrador. "Alumno" se representa como `estudiante`.
-
-Cuentas de prueba:
-=======
 ## Autenticación y autorización
 
 La API usa JWT. `POST /signup` y `POST /signin` devuelven:
@@ -147,7 +106,6 @@ Los refresh tokens se guardan en memoria: al reiniciar el proceso los usuarios
 deben volver a iniciar sesión.
 
 ### Cuentas de prueba
->>>>>>> develop
 
 | Rol | Email | Contraseña |
 | --- | --- | --- |
@@ -156,42 +114,16 @@ deben volver a iniciar sesión.
 | estudiante | `estudiante@rehabhur.com` | `Password123` |
 | paciente | `paciente@rehabhur.com` | `Password123` |
 
-<<<<<<< HEAD
-Los refresh tokens también se guardan en memoria: al reiniciar el proceso los
-usuarios deben volver a iniciar sesión.
-
-## Docker
-
-```sh
-docker compose up --build
-```
-
-O construir la imagen manualmente:
-=======
 ## Docker
 
 El `Dockerfile` compila TypeScript en una primera etapa y en la imagen final
 deja solo las dependencias de producción. Para construir y correr localmente:
->>>>>>> develop
 
 ```sh
 docker build -t ghcr.io/rehabhur/rehabhur-api:local .
 docker run --rm -p 3000:3000 --env-file .env ghcr.io/rehabhur/rehabhur-api:local
 ```
 
-<<<<<<< HEAD
-## CI/CD
-
-El workflow corre typecheck, tests y build en pull requests y push a `main` y
-`develop`, y publica la imagen en GitHub Container Registry en cada push:
-
-| Rama | Tags |
-| --- | --- |
-| `develop` | `develop`, `sha-<commit>` |
-| `main` | `latest`, `main`, `sha-<commit>` |
-
-Deploy en el servidor:
-=======
 También se puede usar Docker Compose. Copiar `.env.example` a `.env`, completar
 `JWT_SECRET` y ejecutar:
 
@@ -223,17 +155,10 @@ En pull requests la imagen se construye pero no se publica.
 ### Deploy en el servidor
 
 Copiar `docker-compose.yml` y un `.env` con `JWT_SECRET` al servidor y ejecutar:
->>>>>>> develop
 
 ```sh
 docker compose pull
 docker compose up -d
-<<<<<<< HEAD
-```
-
-Usar `IMAGE_TAG=develop` para staging o `IMAGE_TAG=sha-<commit>` para volver a
-una versión anterior. El paquete de GHCR debe permitir la lectura.
-=======
 docker compose ps
 docker compose logs -f api
 ```
@@ -253,4 +178,3 @@ IMAGE_TAG=sha-abc1234 docker compose up -d
 
 El paquete de GHCR debe tener habilitada la lectura para quienes vayan a
 descargar la imagen.
->>>>>>> develop
