@@ -1,18 +1,21 @@
 import { Request, Response } from "express";
 import { patiens } from "../mocks/patient.mock.js";
+import { listPatientsQuerySchema } from "../schemas/patient.schema.js";
+import { parseListQuery } from "../middlewares/validate.js";
+import { paginate } from "../utils/pagination.js";
 
 
 export class PatientController {
-  getAllPacients = async (_req: Request, res: Response): Promise<Response> => {
-    try {
-      if (!patiens || patiens.length === 0) {
-        return res.status(404).json({ message: "No se encontró ningún paciente" });
-      }
+  getAllPacients = (req: Request, res: Response): void => {
+    const query = parseListQuery(listPatientsQuerySchema, req.query);
+    const search = query.search?.toLowerCase();
+    const patients = search
+      ? patiens.filter((patient) =>
+        [patient.name, patient.lastName, patient.email, patient.dni]
+          .some((value) => value.toLowerCase().includes(search)))
+      : patiens;
 
-      return res.status(200).json(patiens);
-    } catch (error) {
-      return res.status(500).json({ message: "Error en el servidor", error });
-    }
+    res.status(200).json(paginate(patients, query));
   };
 
   getPacientById = async (req: Request<{ id: string }>, res: Response): Promise<Response> => {

@@ -1,14 +1,23 @@
 import { ExerciseRepository } from "../repository/exercises.repository.js";
 import { Exercise } from "../models/exercise.model.js";
-import { CreateExerciseDto, UpdateExerciseDto } from "../schemas/exercise.schema.js";
+import { CreateExerciseDto, ListExercisesQuery, UpdateExerciseDto } from "../schemas/exercise.schema.js";
 import { AppError } from "../utils/AppError.js";
+import { paginate, type PaginatedResponse } from "../utils/pagination.js";
 
 
 export class ExerciseService {
   constructor(private readonly repository: ExerciseRepository) { }
 
-  findAll(): Exercise[] {
-    return this.repository.findAll();
+  findAll(query: ListExercisesQuery = { page: 1, limit: 10 }): PaginatedResponse<Exercise> {
+    const search = query.search?.toLowerCase();
+    const exercises = this.repository.findAll();
+    const filtered = search
+      ? exercises.filter((exercise) =>
+        [exercise.name, exercise.bodyRegion, exercise.motionType, exercise.material]
+          .some((value) => value.toLowerCase().includes(search)))
+      : exercises;
+
+    return paginate(filtered, query);
   }
 
   findById(id: number): Exercise {

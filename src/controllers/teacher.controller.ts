@@ -1,14 +1,20 @@
 import type { Request, Response } from "express";
 import { TeacherService } from "../services/teacher.service.js";
 import { TeacherResponseDto, toTeacherResponseDto } from "../dtos/teacher-response.dto.js";
-import type { CreateTeacherDto, UpdateTeacherDto } from "../schemas/teacher.schema.js";
+import { listTeachersQuerySchema, type CreateTeacherDto, type UpdateTeacherDto } from "../schemas/teacher.schema.js";
+import { parseListQuery } from "../middlewares/validate.js";
+import type { PaginatedResponse } from "../utils/pagination.js";
 
 export class TeacherController {
   constructor(private readonly service: TeacherService) {}
 
-  findAll = (_req: Request, res: Response<TeacherResponseDto[]>): void => {
-    const teachers = this.service.findAll().map(toTeacherResponseDto);
-    res.status(200).json(teachers);
+  findAll = (req: Request, res: Response<PaginatedResponse<TeacherResponseDto>>): void => {
+    const query = parseListQuery(listTeachersQuerySchema, req.query);
+    const result = this.service.findAll(query);
+    res.status(200).json({
+      data: result.data.map(toTeacherResponseDto),
+      meta: result.meta,
+    });
   };
 
   findById = (req: Request<{ id: string }>, res: Response<TeacherResponseDto>): void => {

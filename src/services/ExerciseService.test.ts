@@ -43,7 +43,7 @@ const getExercisesWithSameRegion = (repository: ExerciseRepository): [Exercise, 
 describe("ExerciseService", () => {
     it("debería devolver la lista de ejercicios disponibles", () => {
         const service = new ExerciseService(new ExerciseRepository());
-        const exercises = service.findAll();
+        const exercises = service.findAll().data;
 
         expect(Array.isArray(exercises)).toBe(true);
         expect(exercises.length).toBeGreaterThan(0);
@@ -59,7 +59,7 @@ describe("ExerciseService", () => {
     });
 
     it("mantiene únicas las URL y las combinaciones de nombre y región existentes", () => {
-        const exercises = new ExerciseService(new ExerciseRepository()).findAll();
+        const exercises = new ExerciseService(new ExerciseRepository()).findAll().data;
 
         expect(new Set(exercises.map((exercise) => exercise.linkVideo)).size).toBe(exercises.length);
         expect(new Set(exercises.map((exercise) => `${exercise.name}\0${exercise.bodyRegion}`)).size)

@@ -402,3 +402,15 @@ export const teachers: Teacher[] = [
     commission: 2026
   }
 ];
+
+// Docentes adicionales para probar listados y paginación.
+for (let index = 1; index <= 50; index += 1) {
+  teachers.push({
+    id: teachers.length + 1,
+    name: `Docente ${index}`,
+    last_name: "De Prueba",
+    email: `docente.prueba${index}@rehabhur.com`,
+    dni: String(90_000_000 + index),
+    commission: 2024 + (index % 3)
+  });
+}

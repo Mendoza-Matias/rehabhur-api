@@ -1,14 +1,20 @@
 import type { Request, Response } from "express";
 import { PersonService } from "../services/person.service.js";
 import { PersonResponseDto, toPersonResponseDto } from "../dtos/person-response.dto.js";
-import type { CreatePersonDto, UpdatePersonDto } from "../schemas/person.schema.js";
+import { listPersonsQuerySchema, type CreatePersonDto, type UpdatePersonDto } from "../schemas/person.schema.js";
+import { parseListQuery } from "../middlewares/validate.js";
+import type { PaginatedResponse } from "../utils/pagination.js";
 
 export class PersonController {
   constructor(private readonly service: PersonService) {}
 
-  findAll = (_req: Request, res: Response<PersonResponseDto[]>): void => {
-    const persons = this.service.findAll().map(toPersonResponseDto);
-    res.status(200).json(persons);
+  findAll = (req: Request, res: Response<PaginatedResponse<PersonResponseDto>>): void => {
+    const query = parseListQuery(listPersonsQuerySchema, req.query);
+    const result = this.service.findAll(query);
+    res.status(200).json({
+      data: result.data.map(toPersonResponseDto),
+      meta: result.meta,
+    });
   };
 
   findById = (req: Request<{ id: string }>, res: Response<PersonResponseDto>): void => {

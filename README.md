@@ -2,11 +2,6 @@
 
 API REST de rehabilitación construida con Express 5, TypeScript y Zod.
 
-## Requisitos
-
-- Node.js
-- npm
-
 ## Desarrollo
 
 ```sh
@@ -14,16 +9,16 @@ npm install
 npm run dev
 ```
 
-El servidor escucha en el puerto `3000` por defecto. Se puede configurar con la
-variable de entorno `PORT` (entero entre `1` y `65535`).
+Copiar `.env.example` a `.env` y completar `JWT_SECRET` con una clave Base64 de
+32 bytes. El servidor escucha en `http://localhost:3000` (configurable con
+`PORT`).
 
-## Verificación y producción
+Verificación:
 
 ```sh
 npm test
 npm run typecheck
 npm run build
-npm start
 ```
 
 ## Variables de entorno
@@ -36,7 +31,7 @@ Copiar `.env.example` a `.env` y completar:
 
 ## Rutas
 
-- `GET /health`: estado del servidor.
+- `GET /health`
 - `GET /api/v1/teachers`, `GET /api/v1/teachers/:id`
 - `POST /api/v1/teachers`, `PATCH /api/v1/teachers/:id`, `DELETE /api/v1/teachers/:id`
 - `GET /api/v1/patients`, `GET /api/v1/patients/:id`
@@ -51,17 +46,9 @@ Copiar `.env.example` a `.env` y completar:
 - `GET /api/v1/auth/profile`
 - `GET /api/v1/users`, `POST /api/v1/users` (solo administradores)
 
-Las personas aceptan `firstName`, `lastName`, `dni`, `email`, `nationality` y
-`role` (`admin`, `docente`, `estudiante` o `paciente`). La actualización es
-parcial y requiere al menos un campo. Los ejercicios aceptan `name`,
-`bodyRegion`, `motionType`, `material`, `linkVideo` e `instructions`; las
-regiones, tipos de movimiento y materiales se consultan en `/options`.
+Los datos se almacenan en memoria y se reinician con el proceso.
 
-La creación y actualización de docentes aceptan `name`, `last_name`, `email`,
-`dni` y `commission`. La actualización es parcial y requiere al menos un campo.
-La actualización de pacientes también es parcial. Los datos de docentes,
-pacientes, personas y ejercicios continúan almacenándose en memoria; se
-reinician con el proceso y no constituyen persistencia de producción.
+## Paginación
 
 ## Autenticación y autorización
 
