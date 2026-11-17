@@ -452,3 +452,18 @@ export const exercises: Exercise[] = [
         instructions: "Acostarse cómodamente y colocar una mano sobre el abdomen. Inspirar profundamente llevando el aire hacia el abdomen y exhalar lentamente."
     }
 ];
+
+// Ejercicios adicionales para probar listados y paginación.
+const extraRegions = ["Brazos", "Cadera", "Core", "Cuello", "Hombros", "Piernas", "Rodillas"];
+
+for (let index = 1; index <= 20; index += 1) {
+    exercises.push({
+        id: exercises.length + 1,
+        name: `Ejercicio de prueba ${index}`,
+        bodyRegion: extraRegions[(index - 1) % extraRegions.length]!,
+        motionType: "Flexión",
+        material: "Sin material",
+        linkVideo: `https://www.youtube.com/results?search_query=ejercicio+de+prueba+${index}`,
+        instructions: `Ejercicio de prueba número ${index} para validar la paginación de listados.`
+    });
+}

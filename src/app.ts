@@ -1,11 +1,15 @@
+import "dotenv/config";
 import express from "express";
+import cookieParser from "cookie-parser";
 import cors from "cors";
 import {
+    authRoutes,
     exercisesRoutes,
     optionRoutes,
     patientRoutes,
     personRoutes,
-    teacherRoutes
+    teacherRoutes,
+    userRoutes
 } from "./routes/index.js";
 import {
     errorHandler,
@@ -14,7 +18,23 @@ import {
 
 const app = express();
 
-app.use(cors());
+const defaultOrigins = [
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://localhost:4200",
+];
+
+const configuredOrigins = (process.env.CORS_ORIGIN ?? "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+app.use(cors({
+    // Con cookies credenciales no se permite comodín: hay que listar los orígenes.
+    origin: configuredOrigins.length > 0 ? configuredOrigins : defaultOrigins,
+    credentials: true,
+}));
+app.use(cookieParser());
 app.use(express.json());
 
 const healthCheck = (
@@ -32,6 +52,8 @@ app.use("/api/v1/patients", patientRoutes);
 app.use("/api/v1/persons", personRoutes);
 app.use("/api/v1/exercises", exercisesRoutes);
 app.use("/api/v1/options", optionRoutes);
+app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/users", userRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

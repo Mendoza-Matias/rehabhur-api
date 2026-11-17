@@ -23,10 +23,10 @@ describe("API de rehabilitación", () => {
     const response = await request(app).get("/api/v1/exercises");
 
     expect(response.status).toBe(200);
-    expect(Array.isArray(response.body)).toBe(true);
-    expect(response.body.length).toBeGreaterThan(0);
-    expect(response.body[0]).toHaveProperty("id");
-    expect(response.body[0]).toHaveProperty("name");
+    expect(Array.isArray(response.body.data)).toBe(true);
+    expect(response.body.data.length).toBeGreaterThan(0);
+    expect(response.body.data[0]).toHaveProperty("id");
+    expect(response.body.data[0]).toHaveProperty("name");
   });
 
   it("permite crear, consultar, actualizar y eliminar docentes", async () => {
@@ -79,17 +79,17 @@ describe("API de rehabilitación", () => {
   it("expone y valida las rutas de pacientes", async () => {
     const patients = await request(app).get("/api/v1/patients");
     expect(patients.status).toBe(200);
-    expect(patients.body.length).toBeGreaterThan(0);
+    expect(patients.body.data.length).toBeGreaterThan(0);
 
-    const originalName = patients.body[0].name as string;
+    const originalName = patients.body.data[0].name as string;
     const updated = await request(app)
-      .patch(`/api/v1/patients/${patients.body[0].id}`)
+      .patch(`/api/v1/patients/${patients.body.data[0].id}`)
       .send({ name: "Paciente temporal" });
     expect(updated.status).toBe(200);
     expect(updated.body.name).toBe("Paciente temporal");
 
     const restored = await request(app)
-      .patch(`/api/v1/patients/${patients.body[0].id}`)
+      .patch(`/api/v1/patients/${patients.body.data[0].id}`)
       .send({ name: originalName });
     expect(restored.body.name).toBe(originalName);
   });
@@ -114,9 +114,12 @@ describe("API de rehabilitación", () => {
     });
 
     const id = created.body.id as number;
-    const listed = await request(app).get("/api/v1/persons");
+    const listed = await request(app).get("/api/v1/persons?limit=100");
     expect(listed.status).toBe(200);
-    expect(listed.body.some((person: { id: number }) => person.id === id)).toBe(true);
+    const lastPage = listed.body.meta.totalPages;
+    const lastPageResponse = await request(app)
+      .get(`/api/v1/persons?page=${lastPage}&limit=100`);
+    expect(lastPageResponse.body.data.some((person: { id: number }) => person.id === id)).toBe(true);
 
     const updated = await request(app)
       .patch(`/api/v1/persons/${id}`)
@@ -128,6 +131,49 @@ describe("API de rehabilitación", () => {
     const deleted = await request(app).delete(`/api/v1/persons/${id}`);
     expect(deleted.status).toBe(204);
     expect((await request(app).get(`/api/v1/persons/${id}`)).status).toBe(404);
+  });
+
+  it("pagina los listados con page y limit", async () => {
+    const firstPage = await request(app).get("/api/v1/persons?page=1&limit=5");
+    const secondPage = await request(app).get("/api/v1/persons?page=2&limit=5");
+
+    expect(firstPage.status).toBe(200);
+    expect(firstPage.body.data).toHaveLength(5);
+    expect(firstPage.body.meta).toMatchObject({
+      page: 1,
+      limit: 5,
+      total: expect.any(Number),
+      hasNextPage: true,
+      hasPreviousPage: false,
+    });
+    expect(secondPage.body.data).toHaveLength(5);
+    expect(secondPage.body.data[0].id).not.toBe(firstPage.body.data[0].id);
+  });
+
+  it("usa page=1 y limit=10 por defecto", async () => {
+    const response = await request(app).get("/api/v1/teachers");
+
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveLength(10);
+    expect(response.body.meta).toMatchObject({ page: 1, limit: 10 });
+  });
+
+  it("rechaza parámetros de paginación inválidos", async () => {
+    const invalidPage = await request(app).get("/api/v1/patients?page=0");
+    expect(invalidPage.status).toBe(400);
+    expect(invalidPage.body.error.code).toBe("INVALID_PAGINATION");
+
+    const invalidLimit = await request(app).get("/api/v1/exercises?limit=101");
+    expect(invalidLimit.status).toBe(400);
+    expect(invalidLimit.body.error.code).toBe("INVALID_PAGINATION");
+  });
+
+  it("devuelve una página vacía cuando se supera el total", async () => {
+    const response = await request(app).get("/api/v1/teachers?page=999&limit=10");
+
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveLength(0);
+    expect(response.body.meta.hasNextPage).toBe(false);
   });
 
   it("devuelve las opciones para el formulario de ejercicios", async () => {

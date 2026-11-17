@@ -403,3 +403,15 @@ export const patiens: Patient[] = [
     comision: 2025
   }
 ];
+
+// Pacientes adicionales para probar listados y paginación.
+for (let index = 1; index <= 50; index += 1) {
+  patiens.push({
+    id: patiens.length + 1,
+    name: `Paciente ${index}`,
+    lastName: "De Prueba",
+    email: `paciente.prueba${index}@rehabhur.com`,
+    dni: String(47_000_000 + index),
+    comision: 2024 + (index % 3)
+  });
+}
