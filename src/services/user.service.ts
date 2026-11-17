@@ -3,14 +3,30 @@ import bcrypt from "bcryptjs";
 import { toUserResponseDto, type UserResponseDto } from "../dtos/user-response.dto.js";
 import { UserRepository } from "../repository/users.repository.js";
 import type { CreateUserDto } from "../schemas/auth.schema.js";
+import type { ListUsersQuery } from "../schemas/user.schema.js";
 import type { User } from "../models/user.model.js";
 import { AppError } from "../utils/AppError.js";
+import { paginate, type PaginatedResponse } from "../utils/pagination.js";
 
 export class UserService {
     constructor(private readonly repository: UserRepository) { }
 
-    findAll(): UserResponseDto[] {
-        return this.repository.findAll().map(toUserResponseDto);
+    findAll(query: ListUsersQuery = { page: 1, limit: 10 }): PaginatedResponse<UserResponseDto> {
+        const search = query.search?.toLowerCase();
+        const users = this.repository.findAll().map(toUserResponseDto).filter((user) => {
+            if (query.role && user.role !== query.role) {
+                return false;
+            }
+
+            if (!search) {
+                return true;
+            }
+
+            return [user.firstName, user.lastName, user.dni, user.email]
+                .some((value) => value.toLowerCase().includes(search));
+        });
+
+        return paginate(users, query);
     }
 
     findById(id: number): UserResponseDto {

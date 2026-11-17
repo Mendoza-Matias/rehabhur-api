@@ -1,13 +1,25 @@
 import { PersonRepository } from "../repository/persons.repository.js";
 import type { Person } from "../models/person.model.js";
-import type { CreatePersonDto, UpdatePersonDto } from "../schemas/person.schema.js";
+import type { CreatePersonDto, ListPersonsQuery, UpdatePersonDto } from "../schemas/person.schema.js";
 import { AppError } from "../utils/AppError.js";
+import { paginate, type PaginatedResponse } from "../utils/pagination.js";
 
 export class PersonService {
     constructor(private readonly repository: PersonRepository) { }
 
-    findAll(): Person[] {
-        return this.repository.findAll();
+    findAll(query: ListPersonsQuery = { page: 1, limit: 10 }): PaginatedResponse<Person> {
+        const search = query.search?.toLowerCase();
+        const persons = this.repository.findAll();
+        const matchesSearch = search
+            ? persons.filter((person) =>
+                [person.firstName, person.lastName, person.dni, person.email]
+                    .some((value) => value.toLowerCase().includes(search)))
+            : persons;
+        const filtered = query.role
+            ? matchesSearch.filter((person) => person.role === query.role)
+            : matchesSearch;
+
+        return paginate(filtered, query);
     }
 
     findById(id: number): Person {

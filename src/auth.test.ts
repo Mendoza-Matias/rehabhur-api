@@ -178,4 +178,21 @@ describe("Autenticación", () => {
             .set("Authorization", `Bearer ${docenteSession.body.accessToken}`);
         expect(listUsers.status).toBe(403);
     });
+
+    it("permite al administrador listar usuarios con paginación", async () => {
+        const session = await signin(ADMIN.email, ADMIN.password);
+
+        const response = await request(app)
+            .get("/api/v1/users?page=1&limit=5")
+            .set("Authorization", `Bearer ${session.body.accessToken}`);
+
+        expect(response.status).toBe(200);
+        expect(response.body.data).toHaveLength(5);
+        expect(response.body.meta).toMatchObject({
+            page: 1,
+            limit: 5,
+            hasNextPage: true,
+        });
+        expect(response.body.meta.total).toBeGreaterThanOrEqual(24);
+    });
 });

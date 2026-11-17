@@ -2,16 +2,20 @@ import type { Request, Response } from "express";
 
 import type { UserResponseDto } from "../dtos/user-response.dto.js";
 import type { CreateUserDto } from "../schemas/auth.schema.js";
+import { listUsersQuerySchema } from "../schemas/user.schema.js";
 import { UserService } from "../services/user.service.js";
+import { parseListQuery } from "../middlewares/validate.js";
+import type { PaginatedResponse } from "../utils/pagination.js";
 
 export class UserController {
     constructor(private readonly service: UserService) { }
 
     findAll = (
-        _req: Request,
-        res: Response<UserResponseDto[]>
+        req: Request,
+        res: Response<PaginatedResponse<UserResponseDto>>
     ): void => {
-        res.status(200).json(this.service.findAll());
+        const query = parseListQuery(listUsersQuerySchema, req.query);
+        res.status(200).json(this.service.findAll(query));
     };
 
     create = async (
