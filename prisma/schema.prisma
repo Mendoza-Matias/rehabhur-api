@@ -23,3 +23,15 @@ model Teacher {
 
   @@map("teachers")
 }
+
+
+model Patient {
+  id         Int    @id @default(autoincrement())
+  name       String
+  last_name  String
+  email      String @unique
+  dni        String @unique
+  commission Int
+
+  @@map("patients")
+}

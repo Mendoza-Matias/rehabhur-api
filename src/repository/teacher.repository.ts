@@ -1,5 +1,4 @@
 import { Teacher } from "../models/teacher.model.js";
-import { teachers } from "../mocks/teacher.mock.js";
 import { prisma } from "../lib/prisma.js";
 import { CreateTeacherDto, UpdateTeacherDto } from "../schemas/teacher.schema.js";
 
