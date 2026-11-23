@@ -7,25 +7,10 @@ import {
 } from "../schemas/teacher.schema.js";
 
 export class TeacherRepository {
-  async findAll(skip: number, take: number, search?: string) {
-  const where = search
-    ? {
-        OR: [
-          { name: { contains: search, mode: "insensitive" as const } },
-          { last_name: { contains: search, mode: "insensitive" as const } },
-          { email: { contains: search, mode: "insensitive" as const } },
-          { dni: { contains: search, mode: "insensitive" as const } },
-        ],
-      }
-    : {};
+  async findAll(): Promise<Teacher[]> {
+    return prisma.teacher.findMany();
+  }
 
-  const [data, total] = await Promise.all([
-    prisma.teacher.findMany({ where, skip, take }),
-    prisma.teacher.count({ where }),
-  ]);
-
-  return { data, total };
-}
 
 
   async findByEmail(email: string): Promise<Teacher | null> {

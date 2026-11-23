@@ -6,35 +6,23 @@ import {
   UpdatePatientDto,
 } from "../schemas/patient.schema.js";
 import { AppError } from "../utils/AppError.js";
-import type { PaginatedResponse } from "../utils/pagination.js";
+import { paginate, type PaginatedResponse } from "../utils/pagination.js";
 
 export class PatientService {
   constructor(private readonly repository: PatientRepository) {}
 
-  async findAll(query: ListPatientsQuery): Promise<PaginatedResponse<Patient>> {
-    const page = query.page || 1;
-    const limit = query.limit || 10;
-    const skip = (page - 1) * limit;
+  async findAll(query: ListPatientsQuery = { page: 1, limit: 10 }): Promise<PaginatedResponse<Patient>> {
+    const search = query.search?.toLowerCase();
+    
+    const patients = await this.repository.findAll();
 
-    const { data, total } = await this.repository.findAll(
-      skip,
-      limit,
-      query.search,
-    );
+    const matchesSearch = search
+      ? patients.filter((patient) =>
+          [patient.name, patient.last_name, patient.email, patient.dni]
+            .some((value) => value.toLowerCase().includes(search)))
+      : patients;
 
-    const totalPages = Math.ceil(total / limit);
-
-    return {
-      data,
-      meta: {
-        page,
-        limit,
-        total,
-        totalPages,
-        hasNextPage: page < totalPages,
-        hasPreviousPage: page > 1,
-      },
-    };
+    return paginate(matchesSearch, query);
   }
 
   async findById(id: number): Promise<Patient> {

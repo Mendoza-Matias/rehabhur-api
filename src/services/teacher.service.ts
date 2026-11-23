@@ -6,35 +6,27 @@ import {
   UpdateTeacherDto,
 } from "../schemas/teacher.schema.js";
 import { AppError } from "../utils/AppError.js";
-import type { PaginatedResponse } from "../utils/pagination.js";
+import { paginate, type PaginatedResponse } from "../utils/pagination.js";
 
 export class TeacherService {
   constructor(private readonly repository: TeacherRepository) {}
 
-  async findAll(query: ListTeachersQuery): Promise<PaginatedResponse<Teacher>> {
-    const page = query.page || 1;
-    const limit = query.limit || 10;
-    const skip = (page - 1) * limit;
+  async findAll(
+    query: ListTeachersQuery = { page: 1, limit: 10 },
+  ): Promise<PaginatedResponse<Teacher>> {
+    const search = query.search?.toLowerCase();
 
-    const { data, total } = await this.repository.findAll(
-      skip,
-      limit,
-      query.search,
-    );
+    const teachers = await this.repository.findAll();
 
-    const totalPages = Math.ceil(total / limit);
+    const matchesSearch = search
+      ? teachers.filter((teacher) =>
+          [teacher.name, teacher.last_name, teacher.email, teacher.dni].some(
+            (value) => value.toLowerCase().includes(search),
+          ),
+        )
+      : teachers;
 
-    return {
-      data,
-      meta: {
-        page,
-        limit,
-        total,
-        totalPages,
-        hasNextPage: page < totalPages,
-        hasPreviousPage: page > 1,
-      },
-    };
+    return paginate(matchesSearch, query);
   }
 
   async findById(id: number): Promise<Teacher> {
