@@ -15,9 +15,14 @@ import type { PaginatedResponse } from "../utils/pagination.js";
 export class TeacherController {
   constructor(private readonly service: TeacherService) {}
 
-  findAll = async (req: Request, res: Response) => {
-    const teachers = await this.service.findAll();
-    res.json(teachers);
+  findAll = async (req: Request, res: Response<PaginatedResponse<TeacherResponseDto>>) => {
+    const query = parseListQuery(listTeachersQuerySchema, req.query);
+    const result = await this.service.findAll(query);
+    
+    res.status(200).json({
+      data: result.data.map(toTeacherResponseDto),
+      meta: result.meta,
+    });
   };
 
   findById = async (req: Request<{ id: string }>, res: Response) => {
