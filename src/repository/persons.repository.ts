@@ -1,53 +1,36 @@
 import type { Person } from "../models/person.model.js";
-import { persons } from "../mocks/person.mock.js";
+import { prisma } from "../lib/prisma.js";
 import type { CreatePersonDto, UpdatePersonDto } from "../schemas/person.schema.js";
 
 export class PersonRepository {
-    findAll(): Person[] {
-        return persons.map((person) => ({ ...person }));
-    }
+  async findAll(): Promise<Person[]> {
+    return prisma.person.findMany();
+  }
 
-    findById(id: number): Person | undefined {
-        const person = persons.find((item) => item.id === id);
-        return person ? { ...person } : undefined;
-    }
+  async findById(id: number): Promise<Person | null> {
+    return prisma.person.findUnique({ where: { id } });
+  }
 
-    findByEmail(email: string): Person | undefined {
-        const person = persons.find((item) => item.email === email);
-        return person ? { ...person } : undefined;
-    }
+  async findByEmail(email: string): Promise<Person | null> {
+    return prisma.person.findUnique({ where: { email } });
+  }
 
-    findByDni(dni: string): Person | undefined {
-        const person = persons.find((item) => item.dni === dni);
-        return person ? { ...person } : undefined;
-    }
+  async findByDni(dni: string): Promise<Person | null> {
+    return prisma.person.findUnique({ where: { dni } });
+  }
 
-    create(data: CreatePersonDto): Person {
-        const id = persons.length
-            ? Math.max(...persons.map((person) => person.id)) + 1
-            : 1;
+  async create(data: CreatePersonDto): Promise<Person> {
+    return prisma.person.create({ data });
+  }
 
-        const person: Person = { id, ...data };
-        persons.push(person);
-        return { ...person };
-    }
+  async update(id: number, data: UpdatePersonDto): Promise<Person> {
+    return prisma.person.update({
+      where: { id },
+      data,
+    });
+  }
 
-    update(id: number, data: UpdatePersonDto): Person | undefined {
-        const index = persons.findIndex((person) => person.id === id);
-        if (index === -1) return undefined;
-
-        const current = persons[index]!;
-        const updated: Person = { ...current, ...data };
-
-        persons[index] = updated;
-        return { ...updated };
-    }
-
-    delete(id: number): Person | undefined {
-        const index = persons.findIndex((person) => person.id === id);
-        if (index === -1) return undefined;
-
-        const [deleted] = persons.splice(index, 1);
-        return deleted ? { ...deleted } : undefined;
-    }
+  async delete(id: number): Promise<Person> {
+    return prisma.person.delete({ where: { id } });
+  }
 }

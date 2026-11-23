@@ -12,19 +12,29 @@ export class TeacherService {
   constructor(private readonly repository: TeacherRepository) {}
 
   async findAll(query: ListTeachersQuery): Promise<PaginatedResponse<Teacher>> {
-    const { data, total } = await this.repository.findAll(query);
+    const page = query.page || 1;
+    const limit = query.limit || 10;
+    const skip = (page - 1) * limit;
 
-    const totalPages = Math.ceil(total / query.limit);
-    const meta = {
-      page: query.page,
-      limit: query.limit,
-      total,
-      totalPages,
-      hasNextPage: query.page < totalPages,
-      hasPreviousPage: query.page > 1,
+    const { data, total } = await this.repository.findAll(
+      skip,
+      limit,
+      query.search,
+    );
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+      },
     };
-
-    return { data, meta };
   }
 
   async findById(id: number): Promise<Teacher> {
@@ -36,28 +46,55 @@ export class TeacherService {
   }
 
   async create(data: CreateTeacherDto): Promise<Teacher> {
+    const existingByEmail = await this.repository.findByEmail(data.email);
+    if (existingByEmail) {
+      throw new AppError(
+        400,
+        "DUPLICATE_EMAIL",
+        "Ya existe un docente registrado con este correo electrónico",
+      );
+    }
+
+    const existingByDni = await this.repository.findByDni(data.dni);
+    if (existingByDni) {
+      throw new AppError(
+        400,
+        "DUPLICATE_DNI",
+        "Ya existe un docente registrado con este DNI",
+      );
+    }
+
     return this.repository.create(data);
   }
 
   async update(id: number, data: UpdateTeacherDto): Promise<Teacher> {
-    try {
-      return await this.repository.update(id, data);
-    } catch (error: any) {
-      if (error.code === "P2025") {
-        throw new AppError(404, "TEACHER_NOT_FOUND", "No se encontró el docente");
+    const current = await this.findById(id);
+    if (data.email !== undefined && data.email !== current.email) {
+      const existingByEmail = await this.repository.findByEmail(data.email);
+      if (existingByEmail && existingByEmail.id !== id) {
+        throw new AppError(
+          400,
+          "DUPLICATE_EMAIL",
+          "Ya existe otro docente registrado con este correo electrónico",
+        );
       }
-      throw error;
     }
+
+    if (data.dni !== undefined && data.dni !== current.dni) {
+      const existingByDni = await this.repository.findByDni(data.dni);
+      if (existingByDni && existingByDni.id !== id) {
+        throw new AppError(
+          400,
+          "DUPLICATE_DNI",
+          "Ya existe otro docente registrado con este DNI",
+        );
+      }
+    }
+    return this.repository.update(id, data);
   }
 
   async delete(id: number): Promise<void> {
-    try {
-      await this.repository.delete(id);
-    } catch (error: any) {
-      if (error.code === "P2025") {
-        throw new AppError(404, "TEACHER_NOT_FOUND", "No se encontró el docente");
-      }
-      throw error;
-    }
+    await this.findById(id);
+    await this.repository.delete(id);
   }
 }

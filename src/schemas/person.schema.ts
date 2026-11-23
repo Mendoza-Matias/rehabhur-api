@@ -4,7 +4,7 @@ import { paginationQuerySchema } from "./pagination.schema.js";
 
 export const createPersonSchema = z.object({
     firstName: z.string().trim().min(1, "El nombre es obligatorio"),
-    lastName: z.string().trim().min(1, "El apellido es obligatorio"),
+    last_name: z.string().trim().min(1, "El apellido es obligatorio"),
     dni: z
         .string()
         .trim()
