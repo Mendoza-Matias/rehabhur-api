@@ -55,3 +55,18 @@ model Person {
 
   @@map("persons")
 }
+
+
+model Exercise {
+  id           Int    @id @default(autoincrement())
+  name         String
+  bodyRegion   String
+  motionType   String
+  material     String
+  linkVideo    String @unique
+  instructions String
+
+
+  @@unique([name, bodyRegion])
+  @@map("exercises")
+}
