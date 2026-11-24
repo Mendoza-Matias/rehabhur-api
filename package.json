@@ -10,7 +10,9 @@
     "test": "vitest run src",
     "test:watch": "vitest src",
     "typecheck": "tsc --noEmit",
-    "postinstall": "prisma skills sync || exit 0"
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate deploy",
+    "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "",

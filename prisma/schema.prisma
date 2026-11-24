@@ -47,7 +47,7 @@ enum Role {
 model Person {
   id          Int    @id @default(autoincrement())
   firstName   String
-  last_name   String
+  lastName    String @map("last_name")
   email       String @unique
   dni         String @unique
   nationality String

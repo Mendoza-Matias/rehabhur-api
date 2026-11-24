@@ -1,7 +1,7 @@
 import { Patient } from "../models/patient.model.js";
 
 
-export const patiens: Patient[] = [
+export const patients: Patient[] = [
   {
     id: 1,
     name: "Juan",
@@ -406,8 +406,8 @@ export const patiens: Patient[] = [
 
 // Pacientes adicionales para probar listados y paginación.
 for (let index = 1; index <= 50; index += 1) {
-  patiens.push({
-    id: patiens.length + 1,
+  patients.push({
+    id: patients.length + 1,
     name: `Paciente ${index}`,
     last_name: "De Prueba",
     email: `paciente.prueba${index}@rehabhur.com`,

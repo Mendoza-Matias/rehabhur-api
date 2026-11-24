@@ -20,7 +20,7 @@ export class PersonService {
 
     const matchesSearch = search
       ? persons.filter((person) =>
-          [person.firstName, person.last_name, person.dni, person.email].some(
+          [person.firstName, person.lastName, person.dni, person.email].some(
             (value) => value.toLowerCase().includes(search),
           ),
         )

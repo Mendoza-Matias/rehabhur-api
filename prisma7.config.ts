@@ -2,10 +2,7 @@
 // npm install --save-dev prisma dotenv
 import "dotenv/config";
 import { defineConfig } from "prisma/config";
-
-declare const process: {
-  env: Record<string, string | undefined>;
-};
+import { getDatabaseConnectionString } from "./src/config/database.js";
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
@@ -13,6 +10,6 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    url: getDatabaseConnectionString(),
   },
 });

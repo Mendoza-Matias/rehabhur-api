@@ -1,12 +1,16 @@
 import { z } from "zod";
+
 import { paginationQuerySchema } from "./pagination.schema.js";
 
 export const createPatientSchema = z.object({
     name: z.string().trim().min(1, "El nombre es obligatorio"),
     last_name: z.string().trim().min(1, "El apellido es obligatorio"),
-    email: z.string().trim().email("El correo electrónico no es válido"),
-    dni: z.string().trim().min(1, "El DNI es obligatorio"),
-    commission: z.number().int().nonnegative(),
+    email: z.string().trim().toLowerCase().email("El correo electrónico no es válido"),
+    dni: z
+        .string()
+        .trim()
+        .regex(/^\d{7,8}$/, "El DNI debe contener entre 7 y 8 dígitos"),
+    commission: z.number().int().nonnegative("La comisión debe ser un entero no negativo"),
 });
 
 export const updatePatientSchema = createPatientSchema

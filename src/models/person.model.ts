@@ -7,7 +7,7 @@ export type PersonRole = Role;
 export interface Person {
     id: number;
     firstName: string;
-    last_name: string;
+    lastName: string;
     dni: string;
     email: string;
     nationality: string;

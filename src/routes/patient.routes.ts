@@ -1,8 +1,9 @@
 import { Router } from "express";
+
 import { PatientController } from "../controllers/patient.controller.js";
 import { schemaValidator, validateIdParam } from "../middlewares/validate.js";
-import { createPatientSchema, updatePatientSchema } from "../schemas/patient.schema.js";
 import { PatientRepository } from "../repository/patients.repository.js";
+import { createPatientSchema, updatePatientSchema } from "../schemas/patient.schema.js";
 import { PatientService } from "../services/patient.service.js";
 
 const repository = new PatientRepository();

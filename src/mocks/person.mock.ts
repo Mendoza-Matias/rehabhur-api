@@ -4,7 +4,7 @@ import { users } from "./user.mock.js";
 const usersAsPersons: Person[] = users.map((user, index) => ({
     id: index + 1,
     firstName: user.firstName,
-    last_name: user.lastName,
+    lastName: user.lastName,
     dni: user.dni,
     email: user.email,
     nationality: "Argentina",
@@ -14,17 +14,8 @@ const usersAsPersons: Person[] = users.map((user, index) => ({
 const admins: Person[] = [
     {
         id: usersAsPersons.length + 1,
-        firstName: "Usuario",
-        last_name: "Administrador",
-        dni: "30111222",
-        email: "admin@rehabhur.com",
-        nationality: "Argentina",
-        role: "admin",
-    },
-    {
-        id: usersAsPersons.length + 2,
         firstName: "Coordinación",
-        last_name: "Académica",
+        lastName: "Académica",
         dni: "28333444",
         email: "coordinacion@rehabhur.com",
         nationality: "Argentina",
@@ -38,7 +29,7 @@ const firstNames = [
     "Marcos", "Martina", "Mateo", "Natalia", "Nicolás", "Valentina",
 ];
 
-const last_names = [
+const lastNames = [
     "Acosta", "Álvarez", "Benítez", "Cabrera", "Castro", "Correa", "Duarte",
     "Fernández", "Gómez", "Herrera", "Ibarra", "López", "Méndez", "Molina",
     "Navarro", "Pereyra", "Ramírez", "Rojas", "Sosa", "Torres",
@@ -66,7 +57,7 @@ for (const role of ["estudiante", "admin", "paciente"] as const) {
         generatedPersons.push({
             id: nextId,
             firstName: firstNames[position % firstNames.length]!,
-            last_name: last_names[(position * 3) % last_names.length]!,
+            lastName: lastNames[(position * 3) % lastNames.length]!,
             dni: String(nextDni),
             email: `${role}${index}@rehabhur.com`,
             nationality: "Argentina",
